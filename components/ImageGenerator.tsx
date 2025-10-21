@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { generateImage } from '../services/geminiService';
 import Spinner from './common/Spinner';
@@ -64,7 +63,7 @@ const ImageGenerator: React.FC = () => {
             <img src={generatedImage} alt="Generated" className="rounded-lg max-w-full h-auto max-h-96 shadow-lg" />
             <a 
               href={generatedImage} 
-              download={`generated-image-${Date.now()}.jpeg`}
+              download={`generated-image-${Date.now()}.png`}
               className="absolute bottom-4 right-4 bg-black bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75 transition-opacity duration-300 opacity-0 group-hover:opacity-100"
               aria-label="Download Image"
               >

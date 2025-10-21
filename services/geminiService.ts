@@ -2,19 +2,27 @@ import { GoogleGenAI, Modality } from "@google/genai";
 
 export const generateImage = async (prompt: string) => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-  const response = await ai.models.generateImages({
-    model: 'imagen-4.0-generate-001',
-    prompt: prompt,
+  const response = await ai.models.generateContent({
+    model: 'gemini-2.5-flash-image',
+    contents: {
+      parts: [
+        {
+          text: prompt,
+        },
+      ],
+    },
     config: {
-      numberOfImages: 1,
-      outputMimeType: 'image/jpeg',
-      aspectRatio: '1:1',
+      responseModalities: [Modality.IMAGE],
     },
   });
 
-  if (response.generatedImages && response.generatedImages.length > 0) {
-    const base64ImageBytes = response.generatedImages[0].image.imageBytes;
-    return `data:image/jpeg;base64,${base64ImageBytes}`;
+  if (response.candidates && response.candidates.length > 0) {
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        const base64ImageBytes: string = part.inlineData.data;
+        return `data:${part.inlineData.mimeType};base64,${base64ImageBytes}`;
+      }
+    }
   }
   throw new Error("لم يتم إنشاء أي صورة.");
 };
@@ -41,10 +49,12 @@ export const editImage = async (prompt: string, imageBase64: string, mimeType: s
     },
   });
 
-  for (const part of response.candidates[0].content.parts) {
-    if (part.inlineData) {
-      const base64ImageBytes: string = part.inlineData.data;
-      return `data:image/png;base64,${base64ImageBytes}`;
+  if (response.candidates && response.candidates.length > 0) {
+    for (const part of response.candidates[0].content.parts) {
+      if (part.inlineData) {
+        const base64ImageBytes: string = part.inlineData.data;
+        return `data:${part.inlineData.mimeType};base64,${base64ImageBytes}`;
+      }
     }
   }
   throw new Error("فشل تعديل الصورة.");
